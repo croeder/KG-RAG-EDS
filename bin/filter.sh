@@ -8,7 +8,7 @@ awk -F'\t'  '{if (!$21 && $1 ~ /^MONDO/ && $3 ~ /Ehlers-Danlos syndrome/)   prin
 
 cut -d, -f1 data/eds_nodes.tsv > data/seeds.txt   
 
-grep -F -f data/seeds.txt data/monarch-kg_edges.tsv > data/eds_egdes_raw.tsv
+grep -F -f data/seeds.txt data/monarch-kg_edges.tsv > data/eds_edges_raw.tsv
 
 
 # show categories
