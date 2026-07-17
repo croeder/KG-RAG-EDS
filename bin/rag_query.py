@@ -21,13 +21,13 @@ from sentence_transformers import SentenceTransformer
 PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
 DB = f"{PROJECT_HOME}/data/eds.duckdb"
 
-EMBED_MODEL = "all-MiniLM-L6-v2"      # must match what embed_nodes.py used
+EMBED_MODEL = "all-MiniLM-L6-v2"  # must match what embed_nodes.py used
 GEN_MODEL = "Qwen/Qwen2.5-1.5B-Instruct"
 ANTHROPIC_MODEL = "claude-opus-4-8"
 DIM = 384
-K = 5                                  # how many node texts to retrieve
+K = 5  # how many node texts to retrieve
 
-BACKEND = os.environ.get("RAG_BACKEND", "local")   # "local" | "anthropic"
+BACKEND = os.environ.get("RAG_BACKEND", "local")  # "local" | "anthropic"
 
 SYSTEM = (
     "You are a biomedical assistant. Answer the question using ONLY the context "
@@ -78,13 +78,12 @@ def generate_local(system, user):
         dtype=torch.float16 if device == "mps" else torch.float32,
     ).to(device)
 
-    messages = [{"role": "system", "content": system},
-                {"role": "user", "content": user}]
+    messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
     text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     inputs = tok([text], return_tensors="pt").to(device)
     generated = model.generate(**inputs, max_new_tokens=512, do_sample=False)
     # slice off the prompt tokens; decode only the newly generated answer
-    new_tokens = generated[0][inputs.input_ids.shape[1]:]
+    new_tokens = generated[0][inputs.input_ids.shape[1] :]
     return tok.decode(new_tokens, skip_special_tokens=True).strip()
 
 

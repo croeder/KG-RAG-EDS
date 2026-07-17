@@ -1,0 +1,20 @@
+# Config for the semantic predicate classifier (project 2, bin/project_2_predicate_classifier.py).
+# These are TUNING KNOBS — edited here as data, not buried in code.
+#
+# The descriptions are HAND-WRITTEN and question-facing (the words people use when
+# asking). The official Biolink Model definitions were tried first and matched
+# casual questions poorly — ontology vocabulary shares few words with questions;
+# see bin/project_2_fetch_biolink_defs.py for that text and the failure.
+#
+# embed_model must match the model stage 1 used to embed the nodes
+# (bin/embed_nodes.py) — the question and the descriptions must share a vector space.
+
+embed_model: all-MiniLM-L6-v2
+cutoff: 0.30
+
+predicates:
+  "biolink:has_phenotype": symptoms, clinical features, signs, or phenotypes of the disease
+  "biolink:gene_associated_with_condition": genes associated with or underlying the disease
+  "biolink:causes": genes or variants that cause the disease
+  "biolink:has_mode_of_inheritance": how the disease is inherited; mode of inheritance, e.g. autosomal or X-linked
+  "biolink:subclass_of": types, subtypes, or forms of the disease

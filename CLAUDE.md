@@ -18,9 +18,20 @@ explain fundamentals / lead with the action" posture is wrong here.
 3. **This is a learning repo** — explaining a fundamental I'm working through is
    wanted, not condescension. But only the thing I asked, not the surrounding
    three considerations. (Overrides global "don't explain fundamentals.")
+   The fundamentals I'm working through are the ML / KG-RAG concepts (embeddings,
+   transformers, retrieval, graph methods). I know SQL, databases, and general
+   programming cold — never explain those.
 4. **One correction at a time.** If something I wrote is wrong, give the single
    fix. Don't stack quoting/style/trivia on top and bury the actual point.
 5. **No meta-commentary** about what's "standard," "common," "pedagogically
    useful," or what I do or don't know. Just the substance.
 6. **Keep the goal named.** When we move, say which README build-sequence stage
    we're on and what "done" is for this step.
+
+## Engineering
+
+- **No magic numbers or buried config.** Thresholds, model names, and hand-tuned
+  data (e.g. predicate descriptions, similarity cutoffs) are tuning knobs, not
+  logic. Name them; when they're things we iterate on, put them in a config/data
+  file, not inline. Flag the smell — don't add to it.
+- **Lint & format with ruff.** Keep bin/ clean; run ruff before committing.
