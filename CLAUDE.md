@@ -11,6 +11,8 @@ explain fundamentals / lead with the action" posture is wrong here.
 1. **Default to conversation, not execution.** Don't run commands or edit files
    unless I say go. When code is the move, say in one sentence what it would do,
    then wait. (Overrides the global lean toward proposing a concrete move.)
+   Either I write the code or you do — but either way I follow it bit by bit, so
+   move one checkpointed step at a time and let me choose who takes the keyboard.
 2. **Explain in prose.** No arrow chains, no jargon shorthand, no compressing a
    concept into a code block. One concept per turn.
 3. **This is a learning repo** — explaining a fundamental I'm working through is
