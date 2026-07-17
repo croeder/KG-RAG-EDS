@@ -23,17 +23,47 @@ upfront.
 - **Out of scope:** the full Monarch graph, cross-species inference, anything that assumes the
   reasoning-methods comparison project's results.
 
-## Build sequence
+## Sub-projects
 
-1. **Plain vector RAG** — no graph structure yet. Text-embed KG node text (names, synonyms,
-   descriptions) and retrieve by nearest-neighbor search against the query embedding.
-2. **Add graph-native retrieval** — entity linking into the graph, then either literal edge
-   traversal or a text-to-SPARQL path, as a separate retrieval mechanism from (1).
-3. **Combine into hybrid KG-RAG** — graph-retrieved facts and text-retrieved context feed the
-   same generation step.
-4. **Apply / evaluate** — informal for now. Likely point where this project starts sharing
-   infrastructure (subgraph pull, embedding utilities, eval harness) with the reasoning-methods
-   comparison project once that's unshelved.
+Four sub-projects, not a sequence of steps. **Each one ends in a complete, working system
+that answers questions about EDS.** They share infrastructure (the subgraph pull, embedding
+utilities, an eval harness) and later ones build on earlier ones, but none is a gate: 2, 3,
+and 4 are each a different working system rather than a stage on the way to a single one.
+Building on each other doesn't stop each from being an individual deliverable. They are
+individually sized pieces of work, addressed separately below.
+
+### 1. Plain vector RAG
+
+No graph structure. Text-embed KG node text (names, synonyms, descriptions) and retrieve by
+nearest-neighbor search against the query embedding; feed the retrieved node text to the LLM.
+
+- **Done when:** a typed EDS question returns an LLM answer grounded in the retrieved node text.
+- **Depends on:** the subgraph pull and node-text extraction only.
+
+### 2. KG-RAG — build on plain RAG by adding graph-native retrieval
+
+Entity-link the question into the graph, then retrieve by structure — either literal edge
+traversal or a text-to-SPARQL path — as a retrieval mechanism added alongside (1).
+
+- **Done when:** a typed EDS question returns an answer grounded in facts pulled by walking or
+  querying the graph.
+- **Depends on:** (1).
+
+### 3. Hybrid Text and KG RAG
+
+Graph-retrieved facts and text-retrieved context feed the same generation step.
+
+- **Done when:** a typed EDS question returns an answer grounded in both retrieval channels.
+- **Depends on:** (1) and (2) — reuses the text channel from (1) and the graph channel from (2).
+
+### 4. Apply / evaluate
+
+Informal for now. Likely point where this repo starts sharing infrastructure (subgraph pull,
+embedding utilities, eval harness) with the reasoning-methods comparison project once that's
+unshelved.
+
+- **Done when:** the working systems above can be exercised and compared on real EDS questions.
+- **Depends on:** whichever of (1)–(3) is being evaluated.
 
 Current stage: not yet started.
 
