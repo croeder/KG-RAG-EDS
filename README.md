@@ -39,6 +39,8 @@ nearest-neighbor search against the query embedding; feed the retrieved node tex
 
 - **Done when:** a typed EDS question returns an LLM answer grounded in the retrieved node text.
 - **Depends on:** the subgraph pull and node-text extraction only.
+- **Status:** done. `bin/embed_nodes.py` (embed → DuckDB), `bin/rag_query.py`
+  (retrieve + local Qwen generation). See `doc/project_1_RAG.md`.
 
 ### 2. KG-RAG — build on plain RAG by adding graph-native retrieval
 
@@ -65,7 +67,7 @@ unshelved.
 - **Done when:** the working systems above can be exercised and compared on real EDS questions.
 - **Depends on:** whichever of (1)–(3) is being evaluated.
 
-Current stage: not yet started.
+Current stage: sub-project 1 (plain vector RAG) done; sub-project 2 (graph-native retrieval) next.
 
 ## Data
 
