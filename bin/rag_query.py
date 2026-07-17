@@ -2,28 +2,32 @@
 """End-to-end plain vector RAG query (README build seq #1, generation step).
 
 question -> embed -> retrieve top-k node texts from DuckDB -> build a grounded
-prompt -> local LLM writes the answer.
+prompt -> an LLM writes the answer.
 
 The generation backend sits behind one seam: build_prompt() produces
-backend-neutral (system, user) text; generate() wraps and sends it. Swapping the
-local model for the Anthropic API later means replacing only generate()'s body —
-no re-embedding, because the handoff to the generator is text, not vectors.
+backend-neutral (system, user) text; generate() wraps and sends it. The local
+Qwen model and the Anthropic API are two bodies behind that same seam, chosen by
+the RAG_BACKEND env var (default "local", set "anthropic" for the API). Switching
+costs nothing on the retrieval side — the handoff to the generator is text, not
+vectors, so no re-embedding is involved.
 """
 
+import os
 import sys
 
 import duckdb
-import torch
 from sentence_transformers import SentenceTransformer
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
 PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
 DB = f"{PROJECT_HOME}/data/eds.duckdb"
 
 EMBED_MODEL = "all-MiniLM-L6-v2"      # must match what embed_nodes.py used
 GEN_MODEL = "Qwen/Qwen2.5-1.5B-Instruct"
+ANTHROPIC_MODEL = "claude-opus-4-8"
 DIM = 384
 K = 5                                  # how many node texts to retrieve
+
+BACKEND = os.environ.get("RAG_BACKEND", "local")   # "local" | "anthropic"
 
 SYSTEM = (
     "You are a biomedical assistant. Answer the question using ONLY the context "
@@ -55,8 +59,18 @@ def build_prompt(question, hits):
 
 
 def generate(system, user):
-    """Local Qwen backend. To use the Anthropic API instead, replace this body
-    with a client.messages.create(...) call — nothing else changes."""
+    """The seam: same (system, user) text, dispatched to the chosen backend."""
+    if BACKEND == "anthropic":
+        return generate_anthropic(system, user)
+    return generate_local(system, user)
+
+
+def generate_local(system, user):
+    """Local Qwen via transformers. torch/transformers are imported here, not at
+    module top, so the anthropic backend doesn't pay to load them."""
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
     device = "mps" if torch.backends.mps.is_available() else "cpu"
     tok = AutoTokenizer.from_pretrained(GEN_MODEL)
     model = AutoModelForCausalLM.from_pretrained(
@@ -74,6 +88,22 @@ def generate(system, user):
     return tok.decode(new_tokens, skip_special_tokens=True).strip()
 
 
+def generate_anthropic(system, user):
+    """Anthropic API. Same (system, user) content as the local path; only the
+    envelope differs — system goes to the `system` field, the context+question
+    to a single user message. Auth resolves from ANTHROPIC_API_KEY."""
+    import anthropic
+
+    client = anthropic.Anthropic()
+    resp = client.messages.create(
+        model=ANTHROPIC_MODEL,
+        max_tokens=1024,
+        system=system,
+        messages=[{"role": "user", "content": user}],
+    )
+    return "".join(b.text for b in resp.content if b.type == "text").strip()
+
+
 def main():
     question = " ".join(sys.argv[1:]) or "What joint problems are associated with EDS?"
 
@@ -84,7 +114,7 @@ def main():
     system, user = build_prompt(question, hits)
     answer = generate(system, user)
 
-    print(f"Q: {question}\n")
+    print(f"Q: {question}   [backend: {BACKEND}]\n")
     print("Retrieved (grounding):")
     for id_, text, sim in hits:
         print(f"  {sim:.3f}  {id_:14} {text[:60]}")
