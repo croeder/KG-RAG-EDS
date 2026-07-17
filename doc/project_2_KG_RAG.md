@@ -51,8 +51,8 @@ above. Three ways to build it, in increasing robustness and cost:
 1. **Keyword rules.** A hand-written map from trigger words to predicates ("symptom" → `has_phenotype`, "gene" →
    `gene_associated_with_condition` / `causes`, and so on). Transparent and dependency-free, but lexical — brittle to
    phrasing and synonyms, the same fragility stage 1 escaped.
-2. **Embedding match.** Give each predicate a one-line description, embed the five with the same `all-MiniLM` model used
-   in stage 1, embed the question, and take the nearest by cosine similarity. This is stage 1's semantic search applied to
+2. **Embedding match.** Give each predicate a one-line description, embed each predicate in the menu with the same
+   `all-MiniLM` model used in stage 1, embed the question, and take the nearest by cosine similarity. This is stage 1's semantic search applied to
    the predicate menu instead of node text. Reuses the existing embedder, tolerant of phrasing, and keeps retrieval
    LLM-free. Failure mode: a vague question landing between two predicates.
 3. **LLM classification.** One call — give the LLM the predicates and the question, constrain the output to the menu
@@ -61,8 +61,27 @@ above. Three ways to build it, in increasing robustness and cost:
 
 **Decision: approach 2 (embedding match)** — the direct extension of stage 1, semantic rather than lexical, no LLM in
 retrieval. Escalate to (3) if it proves too coarse on real questions. The classifier returns a *set* of predicates (those
-above a similarity cutoff), not a single one, so a question spanning two relationships ("genes and symptoms") is not
+at or above a similarity cutoff — currently `0.30` in `config/project_2_predicates.yaml`, eyeballed rather than calibrated
+against a labeled question set), not a single one, so a question spanning two relationships ("genes and symptoms") is not
 forced to pick one.
+
+**What the descriptions say matters more than that they're authoritative.** The first attempt fed each predicate the
+official Biolink Model `description` (pulled by `bin/project_2_fetch_biolink_defs.py`). It calibrated badly: on a symptoms
+question `has_phenotype` lost to `has_mode_of_inheritance`, and `subclass_of` never won a "types of EDS" question. Ontology
+definitions are written in ontology vocabulary, which shares few words — and so little embedding neighborhood — with the
+way people actually ask. Replacing them with hand-written, question-facing descriptions (the words that show up in the
+questions themselves) put the right predicate on top for every calibration question. Those descriptions live in
+`config/project_2_predicates.yaml`; because they're hand-tuned data, they belong in config, not buried in code.
 
 - **Done when:** a typed EDS question returns an answer grounded in facts pulled by walking or querying the graph.
 - **Depends on:** project 1 (generation seam) and the edges already loaded by `bin/load_duckdb.py`.
+
+## Artifacts
+
+- `bin/project_2_explore_edges.py` — read-only edge inventory (predicate counts); produced the menu above.
+- `bin/project_2_fetch_biolink_defs.py` — pulls the official Biolink Model descriptions; used to show why they matched
+  questions poorly.
+- `bin/project_2_predicate_classifier.py` — the approach-2 classifier: embeds the question and the predicate descriptions,
+  ranks by cosine similarity, and returns the set at/above the cutoff. Run with no args for the calibration spread.
+- `config/project_2_predicates.yaml` — the tuning knobs: embedding-model name, cutoff, and the hand-written predicate
+  descriptions.
