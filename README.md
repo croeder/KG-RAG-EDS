@@ -95,7 +95,7 @@ Entity-link the question into the graph, then retrieve by structure — either l
 traversal or a text-to-SPARQL path — as a retrieval mechanism added alongside (1).
 
 - **Done when:** a typed EDS question returns an answer grounded in facts pulled by walking or
-  querying the graph.
+  querying the graph. ✅ (one-hop path; see `doc/project_2_KG_RAG.md`)
 - **Depends on:** (1).
 
 ### 3. Hybrid Text and KG RAG
@@ -114,7 +114,8 @@ unshelved.
 - **Done when:** the working systems above can be exercised and compared on real EDS questions.
 - **Depends on:** whichever of (1)–(3) is being evaluated.
 
-Current stage: sub-project 1 (plain vector RAG) done; sub-project 2 (graph-native retrieval) next.
+Current stage: sub-projects 1 (plain vector RAG) and 2 (graph-native retrieval, one-hop) done.
+Next is sub-project 4 (apply / evaluate) — measuring 1 and 2 — skipping 3 (hybrid) for now.
 
 ## Data
 
