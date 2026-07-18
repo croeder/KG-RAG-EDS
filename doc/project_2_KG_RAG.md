@@ -147,18 +147,57 @@ This forces one design choice — how the traversal knows which side the anchor 
    `subclass_of` (Disease → Disease) the anchor legitimately sits on both sides, so it over-returns — both subtypes and
    superclasses — exactly for the one predicate where direction carries meaning.
 
-(Directionality produced by joining `data/eds_edges_raw.tsv` back to the `nodes` categories; edges are not yet loaded as a
-table in `eds.duckdb`, only read as a view over the TSV.)
+(Directionality produced by joining `data/eds_edges_raw.tsv` back to the `nodes` categories. `bin/load_edges.py` persists
+the edges into `eds.duckdb` as a table alongside `nodes`, so the traversal is one query against one database.)
 
-- **Done when:** a typed EDS question returns an answer grounded in facts pulled by walking or querying the graph.
-- **Depends on:** project 1 (generation seam) and the edges already loaded by `bin/load_duckdb.py`.
+**Decision: option 2 (either side).** The traversal matches the anchor on either side and returns the other endpoint, so
+no per-predicate direction table is needed. It over-returns only for `subclass_of`; the `dir` column ('out' = anchor is
+subject, 'in' = anchor is object) marks each fact so that over-return stays visible and separable.
+
+## The full chain, end to end
+
+Putting the pieces together (`bin/project_2_kg_rag_query.py`): embed → anchor, embed → predicate, degree-disambiguate,
+traverse the top predicate, hand the pulled triples to the stage-1 generation seam. Two runs, local backend:
+
+```
+Q: What genes cause Ehlers-Danlos syndrome?
+Anchor:    MONDO:0014139  Ehlers-Danlos syndrome, spondylodysplastic type, 2
+Predicate: causes
+  B3GALT6 — causes — Ehlers-Danlos syndrome, spondylodysplastic type, 2
+A: The gene B3GALT6 causes Ehlers-Danlos syndrome, spondylodysplastic type, 2.
+
+Q: How is the stretchy-skin condition inherited?
+Anchor:    MONDO:0007523  Ehlers-Danlos syndrome, hypermobility type
+Predicate: has_mode_of_inheritance
+  Ehlers-Danlos syndrome, hypermobility type — has_mode_of_inheritance — Autosomal dominant inheritance
+A: ...inherited in an autosomal dominant manner.
+```
+
+The second is the whole chain proving itself: that question had *no disease at all* in its top-5 embedding hits (only
+skin phenotypes), yet degree disambiguation recovered the disease from rank 15, and the answer is exactly the traversed
+triple — grounded, not guessed. The subtype-vs-umbrella limit shows too: the gene question anchored on one subtype, so it
+returned that subtype's single gene rather than all EDS genes.
+
+- **Done:** a typed EDS question returns an answer grounded in facts pulled by walking the graph. ✅
+- **Depends on:** project 1 (generation seam), `bin/load_edges.py` for the edges table, and `config/project_2_predicates.yaml`.
+- **Not yet:** tighten the cutoff so multi-predicate questions can follow the whole set; anchor on the umbrella node when
+  the question is about EDS in general rather than a subtype.
 
 ## Artifacts
+
+Roughly in pipeline order:
 
 - `bin/project_2_explore_edges.py` — read-only edge inventory (predicate counts); produced the menu above.
 - `bin/project_2_fetch_biolink_defs.py` — pulls the official Biolink Model descriptions; used to show why they matched
   questions poorly.
-- `bin/project_2_predicate_classifier.py` — the approach-2 classifier: embeds the question and the predicate descriptions,
-  ranks by cosine similarity, and returns the set at/above the cutoff. Run with no args for the calibration spread.
 - `config/project_2_predicates.yaml` — the tuning knobs: embedding-model name, cutoff, and the hand-written predicate
   descriptions.
+- `bin/project_2_predicate_classifier.py` — the approach-2 classifier: embeds the question and the predicate descriptions,
+  ranks by cosine similarity, and returns the set at/above the cutoff. Run with no args for the calibration spread.
+- `bin/eds_schema.py` — shared `EDGE_COLS` / `READ_OPTS` for the raw edge TSV (was copy-pasted across loaders).
+- `bin/load_edges.py` — persists the edges into `eds.duckdb` as a table alongside `nodes`.
+- `bin/project_2_anchor.py` — anchor recall: embed the question, return the nearest nodes (with category).
+- `bin/project_2_disambiguate.py` — degree/hub disambiguation: couple anchor and predicate, pick the most-connected
+  candidate.
+- `bin/project_2_traverse.py` — one-hop, direction-agnostic traversal (option 2) from an anchor along a predicate.
+- `bin/project_2_kg_rag_query.py` — the whole chain end to end, into the stage-1 generation seam.
