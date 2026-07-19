@@ -25,7 +25,7 @@ EMBED_MODEL = "all-MiniLM-L6-v2"  # must match what embed_nodes.py used
 GEN_MODEL = "Qwen/Qwen2.5-1.5B-Instruct"
 ANTHROPIC_MODEL = "claude-opus-4-8"
 DIM = 384
-K = 5  # how many node texts to retrieve
+K = 5  # top-k: how many of the nearest node texts to keep as grounding
 
 BACKEND = os.environ.get("RAG_BACKEND", "local")  # "local" | "anthropic"
 
@@ -38,17 +38,25 @@ SYSTEM = (
 
 
 def retrieve(con, embedder, question, k=K):
-    """Return the k nearest node rows as (id, text, similarity)."""
-    qv = embedder.encode(question).tolist()
-    return con.execute(
-        """
-        SELECT id, text, array_cosine_similarity(embedding, ?::FLOAT[384]) AS sim
+    """Return the k nearest node rows as (id, text, similarity).
+
+    k is the "top-k": we sort every node by similarity to the question and keep
+    only the k closest. Those k node texts become the grounding handed to the LLM.
+    """
+    question_vector = embedder.encode(question).tolist()
+
+    sql = """
+        SELECT id,
+               text,
+               array_cosine_similarity(embedding, ?::FLOAT[384]) AS sim
         FROM nodes
-        ORDER BY sim DESC
-        LIMIT ?
-        """,
-        [qv, k],
-    ).fetchall()
+        ORDER BY sim DESC     -- most similar first
+        LIMIT ?               -- keep only the top k
+    """
+    params = [question_vector, k]        # fills the two ? above, in order
+
+    rows = con.execute(sql, params).fetchall()
+    return rows
 
 
 def build_prompt(question, hits):
