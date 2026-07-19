@@ -147,6 +147,16 @@ Next is sub-project 4 (apply / evaluate) — measuring 1 and 2 — skipping 3 (h
 
 ## Related
 
+- Org-level positioning (spans the whole KG-RAG line) lives in the
+  [Monarch-Epistemologies `.github` repo](https://github.com/Monarch-Epistemologies/.github):
+  [use_cases](https://github.com/Monarch-Epistemologies/.github/blob/main/docs/use_cases.md) — concrete
+  tasks this line serves (computational phenotyping from OMOP labs → HPO → MONDO, its inverse as cohort
+  discovery, drug repurposing), and why a curated tool-calling chatbot can't reach them;
+  [retrieval_epistemologies](https://github.com/Monarch-Epistemologies/.github/blob/main/docs/retrieval_epistemologies.md) —
+  the modes of knowing (curated assertion, deduction, semantic similarity, text embedding, network
+  embedding) behind each retrieval architecture;
+  [related_work_phenomics_assistant](https://github.com/Monarch-Epistemologies/.github/blob/main/docs/related_work_phenomics_assistant.md) —
+  Shawn O'Neil's Monarch chatbot as the tool-calling comparison point.
 - Reasoning-methods comparison project (Monarch Graph, semantic similarity / semantic embedding
   / network embedding) — shelved, likely future infra-sharing point with this project.
 - Lab notebook: [Substack — TBD name/link]. Narrative/reflective updates live there; this repo
