@@ -4,3 +4,4 @@ transformers==5.14.1
 torch==2.13.0
 anthropic==0.117.0
 ruff==0.15.22        # lint + format (dev)
+pytest==9.1.1        # eval-harness tests (dev)

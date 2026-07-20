@@ -1,0 +1,111 @@
+# Gold standard cases — KG-RAG-EDS (v1). HAND-AUTHORED source of truth.
+#
+# Questions + query specs only. answer_entities are DERIVED, not written here:
+#   venv/bin/python3 bin/eval_derive_gold.py
+# produces eval/gold_eds.resolved.jsonl with the answer sets filled in.
+#
+# Format spec: eval/README.md. Design reasoning: doc/project_4_evaluation.md.
+#
+# Scope: one-hop questions across the five predicates the project-2 classifier
+# routes to (config/project_2_predicates.yaml). Cases deliberately split between
+# umbrella-anchored (expand_subclasses: true, needs subtype aggregation) and
+# subtype-anchored (a single disease node carries the edges directly).
+
+anchor_umbrella: &umbrella MONDO:0020066   # "Ehlers-Danlos syndrome" (the disease as a whole)
+
+cases:
+
+  # --- has_phenotype: disease -> phenotype, anchor is subject (out) ------------
+
+  - id: eds-phenotype-umbrella
+    question: "What are the symptoms of Ehlers-Danlos syndrome?"
+    anchor: *umbrella
+    predicate: biolink:has_phenotype
+    direction: out
+    expand_subclasses: true
+    notes: "umbrella carries no phenotype edges directly; aggregates over subtypes"
+
+  - id: eds-phenotype-classic
+    question: "What are the clinical features of classic type Ehlers-Danlos syndrome?"
+    anchor: MONDO:0007522
+    predicate: biolink:has_phenotype
+    direction: out
+    expand_subclasses: false
+    notes: "subtype anchored directly; ~66 phenotype edges"
+
+  - id: eds-phenotype-vascular
+    question: "What signs are seen in vascular Ehlers-Danlos syndrome?"
+    anchor: MONDO:0017314
+    predicate: biolink:has_phenotype
+    direction: out
+    expand_subclasses: false
+
+  - id: eds-phenotype-hypermobility
+    question: "What are the phenotypes of hypermobility type EDS?"
+    anchor: MONDO:0007523
+    predicate: biolink:has_phenotype
+    direction: out
+    expand_subclasses: false
+
+  # --- gene_associated_with_condition: gene -> disease, anchor is object (in) --
+
+  - id: eds-genes-umbrella
+    question: "What genes are associated with Ehlers-Danlos syndrome?"
+    anchor: *umbrella
+    predicate: biolink:gene_associated_with_condition
+    direction: in
+    expand_subclasses: true
+    notes: "umbrella has no direct gene edges; requires subtype aggregation"
+
+  - id: eds-genes-classic
+    question: "Which genes are linked to classic type Ehlers-Danlos syndrome?"
+    anchor: MONDO:0007522
+    predicate: biolink:gene_associated_with_condition
+    direction: in
+    expand_subclasses: false
+
+  # --- causes: gene -> disease, anchor is object (in) -------------------------
+
+  - id: eds-causes-umbrella
+    question: "What genes cause Ehlers-Danlos syndrome?"
+    anchor: *umbrella
+    predicate: biolink:causes
+    direction: in
+    expand_subclasses: true
+    notes: "causes vs gene_associated_with_condition is a predicate-choice knob"
+
+  - id: eds-causes-vascular
+    question: "What gene causes vascular Ehlers-Danlos syndrome?"
+    anchor: MONDO:0017314
+    predicate: biolink:causes
+    direction: in
+    expand_subclasses: true
+    notes: "causes edge (COL3A1) attaches to the AD vascular subtype, not the mid-level node"
+
+  # --- has_mode_of_inheritance: disease -> inheritance HP, anchor subject (out)
+
+  - id: eds-inheritance-umbrella
+    question: "How is Ehlers-Danlos syndrome inherited?"
+    anchor: *umbrella
+    predicate: biolink:has_mode_of_inheritance
+    direction: out
+    expand_subclasses: true
+    notes: "aggregates the inheritance modes across subtypes (mixed AD/AR/XL)"
+
+  - id: eds-inheritance-classic
+    question: "What is the mode of inheritance of classic type EDS?"
+    anchor: MONDO:0007522
+    predicate: biolink:has_mode_of_inheritance
+    direction: out
+    expand_subclasses: true
+    notes: "inheritance edges attach to classic type 1/2 subtypes, not the mid-level node"
+
+  # --- subclass_of: subtype -> umbrella, anchor is object (in) ----------------
+
+  - id: eds-subtypes-umbrella
+    question: "What are the types of Ehlers-Danlos syndrome?"
+    anchor: *umbrella
+    predicate: biolink:subclass_of
+    direction: in
+    expand_subclasses: false
+    notes: "direct children only; the subclass edges themselves are the answer"
