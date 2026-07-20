@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-PROJECT_HOME=/Users/croeder/git/KG-RAG-EDS
+PROJECT_HOME="$(cd "$(dirname "$0")/.." && pwd)"
 cd $PROJECT_HOME
 
 awk -F'\t'  '{if (!$21 && $1 ~ /^MONDO/ && $3 ~ /Ehlers-Danlos syndrome/)   print $1",  ",$3}' data/monarch-kg_nodes.tsv > data/eds_nodes.tsv

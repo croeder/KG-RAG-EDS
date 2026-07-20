@@ -15,12 +15,13 @@ Run with a question as args, or with no args to see the calibration spread over
 built-in test questions.
 """
 
+import pathlib
 import sys
 
 import yaml
 from sentence_transformers import SentenceTransformer, util
 
-PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME = str(pathlib.Path(__file__).resolve().parents[1])
 CONFIG = f"{PROJECT_HOME}/config/project_2_predicates.yaml"
 
 TEST_QUESTIONS = [

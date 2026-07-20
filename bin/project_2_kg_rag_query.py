@@ -19,6 +19,7 @@ cutoff is still loose enough that the set is often "all five"; following the set
 waits on a tighter cutoff. See doc/project_2_KG_RAG.md.
 """
 
+import pathlib
 import sys
 
 import duckdb
@@ -32,7 +33,7 @@ from project_2_traverse import traverse
 from rag_query import BACKEND, SYSTEM, generate
 from sentence_transformers import SentenceTransformer
 
-PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME = str(pathlib.Path(__file__).resolve().parents[1])
 DB = f"{PROJECT_HOME}/data/eds.duckdb"
 
 MAX_FACTS = 40  # cap facts sent to the generator; truncation is reported, not silent

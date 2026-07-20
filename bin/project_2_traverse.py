@@ -18,11 +18,12 @@ reported so that over-return is at least visible.
 Run: project_2_traverse.py <anchor_id> <predicate>, or no args for the test set.
 """
 
+import pathlib
 import sys
 
 import duckdb
 
-PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME = str(pathlib.Path(__file__).resolve().parents[1])
 DB = f"{PROJECT_HOME}/data/eds.duckdb"
 
 # (anchor_id, predicate) smoke tests: subject-side, object-side, and the

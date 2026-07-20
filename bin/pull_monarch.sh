@@ -2,7 +2,7 @@
 
 # pull a monarch release. 
 
-PROJECT_HOME="/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME="$(cd "$(dirname "$0")/.." && pwd)"
 ls $PROJECT_HOME/data
 cd $PROJECT_HOME/data
 #wget https://data.monarchinitiative.org/monarch-kg/latest/monarch-kg.tar.gz

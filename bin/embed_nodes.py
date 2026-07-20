@@ -7,10 +7,12 @@ FLOAT[384] array. Retrieval is then a single ORDER BY array_cosine_similarity
 query against this table.
 """
 
+import pathlib
+
 import duckdb
 from sentence_transformers import SentenceTransformer
 
-PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME = str(pathlib.Path(__file__).resolve().parents[1])
 NODE_TEXT = f"{PROJECT_HOME}/data/eds_node_text.tsv"
 DB = f"{PROJECT_HOME}/data/eds.duckdb"
 

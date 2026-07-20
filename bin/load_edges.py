@@ -8,10 +8,12 @@ TSV and writes an `edges` table alongside `nodes`. Re-runnable: it drops and
 recreates the table, so it can be re-run after a fresh pull.
 """
 
+import pathlib
+
 import duckdb
 from eds_schema import EDGE_COLS, READ_OPTS
 
-PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME = str(pathlib.Path(__file__).resolve().parents[1])
 DB = f"{PROJECT_HOME}/data/eds.duckdb"
 EDGES = f"{PROJECT_HOME}/data/eds_edges_raw.tsv"
 
