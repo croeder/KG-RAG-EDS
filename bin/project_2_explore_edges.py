@@ -7,9 +7,11 @@ connect. Prints edge counts by predicate and by subject->object category pair.
 Read-only; touches nothing.
 """
 
+import pathlib
+
 import duckdb
 
-PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME = str(pathlib.Path(__file__).resolve().parents[1])
 EDGES = f"{PROJECT_HOME}/data/eds_edges_raw.tsv"
 
 # eds_edges_raw.tsv came out of grep, so it has no header on line 1.

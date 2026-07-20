@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Load the EDS subgraph into DuckDB and join edges to node names."""
 
+import pathlib
+
 import duckdb
 
-PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME = str(pathlib.Path(__file__).resolve().parents[1])
 NODES = f"{PROJECT_HOME}/data/monarch-kg_nodes.tsv"
 EDGES = f"{PROJECT_HOME}/data/eds_edges_raw.tsv"
 

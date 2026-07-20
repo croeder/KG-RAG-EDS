@@ -5,9 +5,11 @@ Nodes = every distinct entity appearing as subject or object in the filtered
 edges. Text = name + synonyms + description concatenated per node.
 """
 
+import pathlib
+
 import duckdb
 
-PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME = str(pathlib.Path(__file__).resolve().parents[1])
 NODES = f"{PROJECT_HOME}/data/monarch-kg_nodes.tsv"
 EDGES = f"{PROJECT_HOME}/data/eds_edges_raw.tsv"
 OUT = f"{PROJECT_HOME}/data/eds_node_text.tsv"

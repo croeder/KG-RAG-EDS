@@ -19,6 +19,7 @@ Run with a question as args, or no args for the test set (includes the cases
 where the top embedding hit is the wrong node).
 """
 
+import pathlib
 import sys
 
 import duckdb
@@ -26,7 +27,7 @@ from project_2_anchor import anchor
 from project_2_predicate_classifier import classify, load_config
 from sentence_transformers import SentenceTransformer
 
-PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME = str(pathlib.Path(__file__).resolve().parents[1])
 DB = f"{PROJECT_HOME}/data/eds.duckdb"
 
 RECALL_K = 25  # generous: the disease must be in the candidate pool to be picked

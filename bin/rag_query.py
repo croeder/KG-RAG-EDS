@@ -13,12 +13,13 @@ vectors, so no re-embedding is involved.
 """
 
 import os
+import pathlib
 import sys
 
 import duckdb
 from sentence_transformers import SentenceTransformer
 
-PROJECT_HOME = "/Users/croeder/git/KG-RAG-EDS"
+PROJECT_HOME = str(pathlib.Path(__file__).resolve().parents[1])
 DB = f"{PROJECT_HOME}/data/eds.duckdb"
 
 EMBED_MODEL = "all-MiniLM-L6-v2"  # must match what embed_nodes.py used
